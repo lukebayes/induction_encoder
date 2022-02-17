@@ -26,9 +26,9 @@ def calculate_point(idx, steps, inside_radius, width, loopnum, loop_angle, phase
     return point_from_radius(mechanical_angle, radius, center_offset_x, center_offset_y)
 
 parser = argparse.ArgumentParser(description='Generate a Kicad PCB layout for Renesas IPS2200 Inductive Encoders.')
-parser.add_argument('--inner', '-idr', type=float,  help='Inner Diameter (or Radius) of the coil')
-parser.add_argument('--outer', '-odr', type=float,  help='Outer Diameter (or Radius) of the coil')
-parser.add_argument('--center', '-cdr', type=float,  help='Centerline Diameter (or Radius) of the coil')
+parser.add_argument('--inner', '-i', type=float,  help='Inner Diameter (or Radius) of the coil')
+parser.add_argument('--outer', '-o', type=float,  help='Outer Diameter (or Radius) of the coil')
+parser.add_argument('--center', '-c', type=float,  help='Centerline Diameter (or Radius) of the coil')
 parser.add_argument('--thickness', '-t', type=float,  help='Radial thickness of the coil')
 
 parser.add_argument('--radius', '-r', action='store_const', const=True)
@@ -36,6 +36,8 @@ parser.add_argument('--radius', '-r', action='store_const', const=True)
 parser.add_argument('--phases', '-p', type=int,  default=8, help='The phase count')
 parser.add_argument('--loops', '-l', type=int,  default=10, help='The loop count')
 parser.add_argument('--steps', '-s', type=int,  default=34, help='The step count')
+
+parser.add_argument('--output', '-out', default='project', help='The base filename to create')
 
 args = parser.parse_args()
 print("YOOOOOO:", args)
@@ -127,11 +129,9 @@ phases = 8
 loops = 6
 steps = 34
 
-print('inside_radius:', inside_radius)
-print('outside_radius:', outside_radius)
-
-exit(1)
-print("NEVER GET HERE!!!!!!!!!")
+print('Creating coil with:')
+print('Inside Diameter:', inside_radius * 2)
+print('Outside Diameter:', outside_radius * 2)
 
 # phases = 8
 # loops = 10
@@ -325,7 +325,7 @@ for loopnum in range(tx_loops+1):
             last_point = tmp_point2
 
         if last_point:
-            print(current_point)
+            # print(current_point)
             segments.append(Segment(start=last_point, end=current_point, layer='F.Cu', net=tx.code))
         last_point = current_point
         if loopnum == tx_loops:
@@ -369,6 +369,8 @@ pcb.segments += segments
 pcb.vias += via_list
 # pcb.zones += [gndplane_top]
 
-pcb.to_file('project')
+pcb.to_file(args.output)
+
+print('Creation Completed at:', args.output + '.kicad_pcb')
 
 #export KISYSMOD=/usr/share/kicad-nightly/footprints/
