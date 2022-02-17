@@ -19,8 +19,7 @@ def calculate_point(idx, steps, inside_radius, width, loopnum, loop_angle, phase
     outside_radius = inside_radius + width
     electrical_angle = (idx/steps)*math.pi*2
     a = 0.5 * (outside_radius**2 - inside_radius**2)
-    b = 0.5 * (outside_radius**2 +
-    inside_radius**2)
+    b = 0.5 * (outside_radius**2 + inside_radius**2)
     radius = math.sqrt(a * math.sin(electrical_angle) + b)
     mechanical_angle = loop_angle*(idx/steps)+loopnum*loop_angle+phasenum*phase_angle + angle_offset
     return point_from_radius(mechanical_angle, radius, center_offset_x, center_offset_y)
@@ -38,6 +37,9 @@ parser.add_argument('--loops', '-l', type=int,  default=10, help='The loop count
 parser.add_argument('--steps', '-s', type=int,  default=34, help='The step count')
 
 parser.add_argument('--output', '-out', default='project', help='The base filename to create')
+
+parser.add_argument('--vinner-offset', '-vio', type=float, default=0.0, help='Inner Via Ring Offset (mm)')
+parser.add_argument('--vouter-offset', '-voo', type=float, default=0.0, help='Outer Via Ring Offset (mm)')
 
 args = parser.parse_args()
 print("YOOOOOO:", args)
@@ -125,17 +127,29 @@ radial_thickness = 5.5
 
 width = outside_radius-inside_radius
 
-phases = 8
-loops = 6
-steps = 34
+# Original / Default values
+# phases = 8
+# loops = 10
+# steps = 34
+
+# GL40 (small)
+# phases = 8
+# loops = 6
+# steps = 34
+
+phases = args.phases
+loops = args.loops
+steps = args.steps
+
+inner_ring_via_offset = args.vinner_offset
+outer_ring_via_offset = args.vouter_offset
 
 print('Creating coil with:')
 print('Inside Diameter:', inside_radius * 2)
 print('Outside Diameter:', outside_radius * 2)
-
-# phases = 8
-# loops = 10
-# steps = 34
+print('Phases:', phases)
+print('Loops:', loops)
+print('Steps:', steps)
 
 
 loop_angle = 2*math.pi/loops
@@ -191,7 +205,6 @@ for loopnum in range(loops):
             # y_value = math.sin(angle) * radial_point_distance + center_offset_x
             # x_value = math.cos(angle) * radial_point_distance + center_offset_y
             current_point = calculate_point(idx, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-
             bottom_layer = True
             if skip_next_segment == True:
                 skip_current_segment=True
@@ -209,17 +222,22 @@ for loopnum in range(loops):
                             skip_next_segment=True
                     else:
                         if idx==int(steps/4):
-                            tmp_radius = inside_radius-0.15
+                            tmp_radius = inside_radius + outer_ring_via_offset
                         else:
-                            tmp_radius = inside_radius+0.15
+                            tmp_radius = inside_radius + inner_ring_via_offset
                         tmp_pt=calculate_point(idx, steps, tmp_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                         via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
+
+                        print('aye:', tmp_pt)
+
+                        # print('aye:', tmp_pt)
 
                 if loopnum == int(loops-1) and phasenum==4 and idx==int(steps/4)+1:
                         tmp_pt=calculate_point(idx-0.5, steps, inside_radius-0.75, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                         segments.append(Segment(start=current_point, end=tmp_pt, layer='F.Cu', net=nets[phasenum].code))
                         via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
                         special_via_point_1 = tmp_pt
+                        # print('bee:', tmp_pt)
                 if loopnum == int(loops-1) and phasenum==5 and idx==int(steps/4)-4:
                     segments.append(Segment(start=current_point, end=special_via_point_1, layer='B.Cu', net=nets[phasenum].code))
                     skip_next_segment=True
@@ -241,11 +259,13 @@ for loopnum in range(loops):
                 if loopnum == int(loops/2)-1 and phasenum>=phases/2:
                     if idx==int(steps/2)+1:
                         via_list.append(Via(at=current_point, size=.5, drill=.3, net=nets[phasenum].code))
+                        # print('cee:', current_point)
                         bottom_layer = not bottom_layer
 
                 if loopnum == int(loops/2) and phasenum<phases/2:
                     if idx==0:
                         via_list.append(Via(at=last_point[phasenum], size=.5, drill=.3, net=nets[phasenum].code))
+                        # print('dee:', current_point)
                         bottom_layer = not bottom_layer
 
 
@@ -260,6 +280,7 @@ for loopnum in range(loops):
                     tmp_pt=calculate_point(idx-0.5, steps, inside_radius-0.75, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                     segments.append(Segment(start=current_point, end=tmp_pt, layer='F.Cu', net=nets[phasenum].code))
                     via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
+                    print('eee:', tmp_pt)
                     special_via_point_1 = tmp_pt
                 if loopnum == int(loops-1) and phasenum==3 and idx==int(steps/4)-3:
                     tmp_pt1=calculate_point(idx-0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
@@ -309,6 +330,7 @@ for loopnum in range(tx_loops+1):
             via_angle = (stepnum+0.15)/tx_steps * math.pi * 2 + tx_angle_offset
             via_point = point_from_radius(via_angle, radius, center_offset_x, center_offset_y)
             via_list.append(Via(at=via_point, size=.5, drill=.3, net=tx.code))
+            print('yoo:', via_point)
             tmp_radius = radius + tx_loops*loop_offset_mm + tx_extra_tail_mm
             tail_end_pt = point_from_radius(angle, tmp_radius, center_offset_x, center_offset_y)
             segments.append(Segment(start=current_point, end=tail_end_pt, layer='B.Cu', net=tx.code))
