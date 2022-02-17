@@ -10,6 +10,17 @@ import numpy as np
 
 MIN_THICKNESS = 2.4
 
+
+# GL40
+# spiral_pcb.py -c 22 -t 3.8 -p 8 -l 6 -out gl40 -vio -0.09 -voo -0.08
+
+# GL60
+# spiral_pcb.py -i 74 -t 8 -out gl60 -voo -0.09
+
+# GL80
+# spiral_pcb.py -i 90 -t 8 -out gl80 -voo -0.09
+
+
 def point_from_radius(angle, radius, center_offset_x, center_offset_y):
     y_value = math.sin(angle) * radius + center_offset_x
     x_value = math.cos(angle) * radius + center_offset_y
@@ -34,7 +45,7 @@ parser.add_argument('--radius', '-r', action='store_const', const=True)
 
 parser.add_argument('--phases', '-p', type=int,  default=8, help='The phase count')
 parser.add_argument('--loops', '-l', type=int,  default=10, help='The loop count')
-parser.add_argument('--steps', '-s', type=int,  default=34, help='The step count')
+parser.add_argument('--steps', '-s', type=int,  default=200, help='The step count')
 
 parser.add_argument('--output', '-out', default='project', help='The base filename to create')
 
@@ -42,7 +53,6 @@ parser.add_argument('--vinner-offset', '-vio', type=float, default=0.0, help='In
 parser.add_argument('--vouter-offset', '-voo', type=float, default=0.0, help='Outer Via Ring Offset (mm)')
 
 args = parser.parse_args()
-print("YOOOOOO:", args)
 
 center_offset_x = 100
 center_offset_y = 100
@@ -79,8 +89,8 @@ elif (args.center != None):
         print('ERROR: Must provide --thickness with --center')
         parser.print_usage()
         exit(1)
-    inside_radius = args.center - (args.thickness / 2)
-    outside_radius = args.center + (args.thickness / 2)
+    inside_radius = (args.center / 2) - (args.thickness / 2)
+    outside_radius = (args.center / 2) + (args.thickness / 2)
 
 if (inside_radius >= (outside_radius - MIN_THICKNESS)):
     print('ERROR: --inner must be smaller than --outer minus minimum thickness (5mm diameter)')
@@ -89,41 +99,6 @@ if (inside_radius >= (outside_radius - MIN_THICKNESS)):
 
 # radial_thickness = 10
 radial_thickness = 5.5
-
-# GL40
-# inside_radius = 16
-
-# GB54-1
-# inside_radius = (60.7 + 3) / 2
-
-# GB54-1
-# inside_radius = (40.7 - 3) / 2
-
-# GB54-1 (mount radius) NO WORKY
-# inside_radius = 20 / 2
-
-# GL60
-# inside_radius = (69 + 3) / 2
-
-# GL80
-# inside_radius = (87 + 3) / 2
-
-# outside_radius = inside_radius + radial_thickness
-
-# inside_diameter = 40
-# inside_radius = inside_diameter / 2
-# outside_radius = inside_radius + radial_thickness
-
-# outside_diameter = 40
-# outside_radius = outside_diameter / 2
-# inside_radius = outside_radius - radial_thickness
-
-# mounting_screw_diameter = 24
-# inside_radius = (mounting_screw_diameter / 2) - (radial_thickness / 2)
-# outside_radius = (mounting_screw_diameter  / 2) + (radial_thickness / 2)
-
-# inside_radius = 33
-# outside_radius = 46.5
 
 width = outside_radius-inside_radius
 
@@ -227,9 +202,6 @@ for loopnum in range(loops):
                             tmp_radius = inside_radius + inner_ring_via_offset
                         tmp_pt=calculate_point(idx, steps, tmp_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                         via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
-
-                        print('aye:', tmp_pt)
-
                         # print('aye:', tmp_pt)
 
                 if loopnum == int(loops-1) and phasenum==4 and idx==int(steps/4)+1:
@@ -280,7 +252,7 @@ for loopnum in range(loops):
                     tmp_pt=calculate_point(idx-0.5, steps, inside_radius-0.75, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                     segments.append(Segment(start=current_point, end=tmp_pt, layer='F.Cu', net=nets[phasenum].code))
                     via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
-                    print('eee:', tmp_pt)
+                    # print('eee:', tmp_pt)
                     special_via_point_1 = tmp_pt
                 if loopnum == int(loops-1) and phasenum==3 and idx==int(steps/4)-3:
                     tmp_pt1=calculate_point(idx-0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
@@ -330,7 +302,6 @@ for loopnum in range(tx_loops+1):
             via_angle = (stepnum+0.15)/tx_steps * math.pi * 2 + tx_angle_offset
             via_point = point_from_radius(via_angle, radius, center_offset_x, center_offset_y)
             via_list.append(Via(at=via_point, size=.5, drill=.3, net=tx.code))
-            print('yoo:', via_point)
             tmp_radius = radius + tx_loops*loop_offset_mm + tx_extra_tail_mm
             tail_end_pt = point_from_radius(angle, tmp_radius, center_offset_x, center_offset_y)
             segments.append(Segment(start=current_point, end=tail_end_pt, layer='B.Cu', net=tx.code))
