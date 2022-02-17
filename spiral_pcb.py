@@ -7,8 +7,6 @@ from pykicad.module import *
 import math
 import numpy as np
 
-
-
 def point_from_radius(angle, radius, center_offset_x, center_offset_y):
     y_value = math.sin(angle) * radius + center_offset_x
     x_value = math.cos(angle) * radius + center_offset_y
@@ -28,13 +26,54 @@ def calculate_point(idx, steps, inside_radius, width, loopnum, loop_angle, phase
 center_offset_x = 100
 center_offset_y = 100
 
-inside_radius = 33
-outside_radius = 46.5
+# radial_thickness = 10
+radial_thickness = 5.5
+
+# GL40
+# inside_radius = 16
+
+# GB54-1
+# inside_radius = (60.7 + 3) / 2
+
+# GB54-1
+# inside_radius = (40.7 - 3) / 2
+
+# GB54-1 (mount radius) NO WORKY
+# inside_radius = 20 / 2
+
+# GL60
+# inside_radius = (69 + 3) / 2
+
+# GL80
+# inside_radius = (87 + 3) / 2
+
+# outside_radius = inside_radius + radial_thickness
+
+# inside_diameter = 40
+# inside_radius = inside_diameter / 2
+# outside_radius = inside_radius + radial_thickness
+
+# outside_diameter = 40
+# outside_radius = outside_diameter / 2
+# inside_radius = outside_radius - radial_thickness
+
+mounting_screw_diameter = 24
+inside_radius = (mounting_screw_diameter / 2) - (radial_thickness / 2)
+outside_radius = (mounting_screw_diameter  / 2) + (radial_thickness / 2)
+
+# inside_radius = 33
+# outside_radius = 46.5
 width = outside_radius-inside_radius
 
 phases = 8
-loops = 10
+loops = 6
 steps = 34
+
+# phases = 8
+# loops = 10
+# steps = 34
+
+
 loop_angle = 2*math.pi/loops
 phase_angle = loop_angle/phases
 angle_offset = 0-phase_angle/2.5 - phase_angle
