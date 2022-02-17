@@ -4,8 +4,11 @@ from numpy import array
 from pykicad.pcb import *
 from pykicad.module import *
 
+import argparse
 import math
 import numpy as np
+
+MIN_THICKNESS = 2.4
 
 def point_from_radius(angle, radius, center_offset_x, center_offset_y):
     y_value = math.sin(angle) * radius + center_offset_x
@@ -22,9 +25,63 @@ def calculate_point(idx, steps, inside_radius, width, loopnum, loop_angle, phase
     mechanical_angle = loop_angle*(idx/steps)+loopnum*loop_angle+phasenum*phase_angle + angle_offset
     return point_from_radius(mechanical_angle, radius, center_offset_x, center_offset_y)
 
+parser = argparse.ArgumentParser(description='Generate a Kicad PCB layout for Renesas IPS2200 Inductive Encoders.')
+parser.add_argument('--inner', '-idr', type=float,  help='Inner Diameter (or Radius) of the coil')
+parser.add_argument('--outer', '-odr', type=float,  help='Outer Diameter (or Radius) of the coil')
+parser.add_argument('--center', '-cdr', type=float,  help='Centerline Diameter (or Radius) of the coil')
+parser.add_argument('--thickness', '-t', type=float,  help='Radial thickness of the coil')
+
+parser.add_argument('--radius', '-r', action='store_const', const=True)
+
+parser.add_argument('--phases', '-p', type=int,  default=8, help='The phase count')
+parser.add_argument('--loops', '-l', type=int,  default=10, help='The loop count')
+parser.add_argument('--steps', '-s', type=int,  default=34, help='The step count')
+
+args = parser.parse_args()
+print("YOOOOOO:", args)
 
 center_offset_x = 100
 center_offset_y = 100
+
+inside_radius = 0
+outside_radius = 0
+
+def get_shell_value(value, is_radius):
+    if (is_radius):
+        return value
+    else:
+        return value / 2
+
+if (args.inner != None):
+    inside_radius = get_shell_value(args.inner, args.radius)
+    if (args.outer != None):
+        outside_radius = get_shell_value(args.outer, args.radius)
+    elif (args.thickness != None):
+        outside_radius = inside_radius + args.thickness
+    else:
+        print('ERROR: Must provide either --outer or --thickness with --inner')
+        parser.print_usage()
+        exit(1)
+elif (args.outer != None):
+    outside_radius = get_shell_value(args.outer, args.radius)
+    if (args.thickness != None):
+        inside_radius = outside_radius - args.thickness
+    else:
+        print('ERROR: Must provide either --inner or --thickness with --outer')
+        parser.print_usage()
+        exit(1)
+elif (args.center != None):
+    if (args.thickness == None):
+        print('ERROR: Must provide --thickness with --center')
+        parser.print_usage()
+        exit(1)
+    inside_radius = args.center - (args.thickness / 2)
+    outside_radius = args.center + (args.thickness / 2)
+
+if (inside_radius >= (outside_radius - MIN_THICKNESS)):
+    print('ERROR: --inner must be smaller than --outer minus minimum thickness (5mm diameter)')
+    parser.print_usage()
+    exit(1)
 
 # radial_thickness = 10
 radial_thickness = 5.5
@@ -57,17 +114,24 @@ radial_thickness = 5.5
 # outside_radius = outside_diameter / 2
 # inside_radius = outside_radius - radial_thickness
 
-mounting_screw_diameter = 24
-inside_radius = (mounting_screw_diameter / 2) - (radial_thickness / 2)
-outside_radius = (mounting_screw_diameter  / 2) + (radial_thickness / 2)
+# mounting_screw_diameter = 24
+# inside_radius = (mounting_screw_diameter / 2) - (radial_thickness / 2)
+# outside_radius = (mounting_screw_diameter  / 2) + (radial_thickness / 2)
 
 # inside_radius = 33
 # outside_radius = 46.5
+
 width = outside_radius-inside_radius
 
 phases = 8
 loops = 6
 steps = 34
+
+print('inside_radius:', inside_radius)
+print('outside_radius:', outside_radius)
+
+exit(1)
+print("NEVER GET HERE!!!!!!!!!")
 
 # phases = 8
 # loops = 10
