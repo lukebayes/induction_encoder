@@ -223,6 +223,7 @@ for loopnum in range(loops):
                     segments.append(Segment(start=tmp_pt2, end=tmp_pt3, layer='B.Cu', net=nets[phasenum].code))
                     segments.append(Segment(start=tmp_pt3, end=tmp_pt4, layer='B.Cu', net=nets[phasenum].code))
 
+
                 if idx>steps/4 and idx < 3*steps/4:
                     bottom_layer = False
                 if idx>3*steps/4:
@@ -230,15 +231,22 @@ for loopnum in range(loops):
 
                 if loopnum == int(loops/2)-1 and phasenum>=phases/2:
                     if idx==int(steps/2) + int(steps / 34):
-                        via_list.append(Via(at=current_point, size=.5, drill=.3, net=nets[phasenum].code))
+                        via_list.append(Via(at=current_point, size=.9, drill=.3, net=nets[phasenum].code))
                         # print('cee:', current_point)
+                        # bottom_layer = not bottom_layer
+                    if idx <= int(steps/2) + int(steps / 34) and idx >= int(steps/2)+1:
                         bottom_layer = not bottom_layer
 
                 if loopnum == int(loops/2)-1 and phasenum<phases/2:
-                    if idx==steps - (int(steps / 34) - 1): #0: #int(steps/2) + 6:
+                    if idx==steps - (int(steps / 34) - 1):
                         via_list.append(Via(at=last_point[phasenum], size=.5, drill=.3, net=nets[phasenum].code))
                         # print('dee:', current_point)
+                        # bottom_layer = not bottom_layer
+                    if idx > steps - (int(steps / 34)):
                         bottom_layer = not bottom_layer
+
+                if idx == 0:
+                    bottom_layer = not bottom_layer
 
                 if loopnum == int(loops-1) and phasenum==3 and idx==int(steps/4)-4:
                     print('aye')
