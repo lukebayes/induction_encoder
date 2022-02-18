@@ -229,13 +229,13 @@ for loopnum in range(loops):
                     bottom_layer = True
 
                 if loopnum == int(loops/2)-1 and phasenum>=phases/2:
-                    if idx==int(steps/2)+1:
+                    if idx==int(steps/2) + 6:
                         via_list.append(Via(at=current_point, size=.5, drill=.3, net=nets[phasenum].code))
                         # print('cee:', current_point)
                         bottom_layer = not bottom_layer
 
-                if loopnum == int(loops/2) and phasenum<phases/2:
-                    if idx==0:
+                if loopnum == int(loops/2)-1 and phasenum<phases/2:
+                    if idx==steps - 5: #0: #int(steps/2) + 6:
                         via_list.append(Via(at=last_point[phasenum], size=.5, drill=.3, net=nets[phasenum].code))
                         # print('dee:', current_point)
                         bottom_layer = not bottom_layer
