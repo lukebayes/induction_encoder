@@ -14,11 +14,11 @@ MIN_THICKNESS = 2.4
 # GL40
 # spiral_pcb.py -c 22 -t 3.8 -p 8 -l 6 -out gl40 -vio -0.09 -voo -0.08
 
-# GL60
-# spiral_pcb.py -i 74 -t 8 -out gl60 -voo -0.09
+# GL60 ID: 74.42mm  x OD: 90.84mm
+# python3 spiral_pcb.py -l 18 -i 75 -t 6 -s 200 -out gl60 -voo -0.05 
 
-# GL80
-# spiral_pcb.py -i 90 -t 8 -out gl80 -voo -0.09
+# GL80 ID: 92.49mm x OD: 108.8mm
+# python3 spiral_pcb.py -l 18 -i 93 -t 6 -s 200 -out gl80 -voo -0.05
 
 
 def point_from_radius(angle, radius, center_offset_x, center_offset_y):
@@ -232,7 +232,6 @@ for loopnum in range(loops):
                 if loopnum == int(loops/2)-1 and phasenum>=phases/2:
                     if idx==int(steps/2) + int(steps / 34):
                         via_list.append(Via(at=current_point, size=.5, drill=.3, net=nets[phasenum].code))
-                        # print('cee:', current_point)
                         # bottom_layer = not bottom_layer
                     if idx <= int(steps/2) + int(steps / 34) and idx >= int(steps/2)+1:
                         bottom_layer = not bottom_layer
@@ -240,14 +239,11 @@ for loopnum in range(loops):
                 if loopnum == int(loops/2)-1 and phasenum<phases/2:
                     if idx==steps - (int(steps / 34) - 1):
                         via_list.append(Via(at=last_point[phasenum], size=.5, drill=.3, net=nets[phasenum].code))
-                        # print('dee:', current_point)
-                        # bottom_layer = not bottom_layer
 
                     if idx > steps - (int(steps / 34)):
                         bottom_layer = not bottom_layer
 
                 if idx == 0 and loopnum == int(loops / 2) and phasenum < phases/2:
-                    print("INSIDE:", idx, loopnum, phasenum)
                     bottom_layer = not bottom_layer
 
                 if loopnum == int(loops-1) and phasenum==3 and idx==int(steps/4)-4:
@@ -261,7 +257,6 @@ for loopnum in range(loops):
                     tmp_pt=calculate_point(idx-0.5, steps, inside_radius-0.75, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                     segments.append(Segment(start=current_point, end=tmp_pt, layer='F.Cu', net=nets[phasenum].code))
                     via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
-                    # print('eee:', tmp_pt)
                     special_via_point_1 = tmp_pt
                 if loopnum == int(loops-1) and phasenum==3 and idx==int(steps/4)-3:
                     tmp_pt1=calculate_point(idx-0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
@@ -274,7 +269,6 @@ for loopnum in range(loops):
                     segments.append(Segment(start=tmp_pt3, end=special_via_point_2, layer='B.Cu', net=nets[phasenum].code))
 
                 if loopnum == int(loops-1) and phasenum==3 and idx==int(steps/4)-1:
-                    print('eee')
                     tmp_pt1=calculate_point(idx+0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                     tmp_pt2=calculate_point(idx+0.3, steps, inside_radius+4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                     segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
@@ -282,7 +276,6 @@ for loopnum in range(loops):
                     skip_next_segment=True
 
                 if loopnum == int(loops-1) and phasenum==3 and idx==int(steps/4):
-                    print('eff')
                     tmp_pt1=calculate_point(idx, steps, inside_radius+4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                     segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
 
