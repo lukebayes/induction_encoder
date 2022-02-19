@@ -12,7 +12,7 @@ MIN_THICKNESS = 2.4
 
 
 # GL40
-# spiral_pcb.py -c 22 -t 3.8 -p 8 -l 6 -out gl40 -vio -0.09 -voo -0.08
+# python3 spiral_pcb.py -c 22 -t 3.8 -p 8 -l 4 -s 200 -out gl40 -vio -0.09 -voo 0.07
 
 # GL60 ID: 74.42mm  x OD: 90.84mm
 # python3 spiral_pcb.py -l 18 -i 75 -t 6 -s 200 -out gl60 -voo -0.05 
