@@ -10,15 +10,17 @@ import numpy as np
 
 MIN_THICKNESS = 2.4
 
+# R_72_V10
+# python3 spiral_pcb.py -i 25 -o 30.5 -r -p 8 -l 10 -s 200 -out R72V10 -vio -0.09 -voo 0.07
 
 # GL40
 # python3 spiral_pcb.py -c 22 -t 3.8 -p 8 -l 4 -s 200 -out gl40 -vio -0.09 -voo 0.07
 
 # GL60 ID: 74.42mm  x OD: 90.84mm
-# python3 spiral_pcb.py -l 18 -i 75 -t 6 -s 200 -out gl60 -voo -0.05 
+# python3 spiral_pcb.py -l 12 -i 75 -t 6 -s 200 -out gl60 -voo -0.05 
 
 # GL80 ID: 92.49mm x OD: 108.8mm
-# python3 spiral_pcb.py -l 18 -i 93 -t 6 -s 200 -out gl80 -voo -0.05
+# python3 spiral_pcb.py -l 12 -i 93 -t 6 -s 200 -out gl80 -voo -0.05
 
 
 def point_from_radius(angle, radius, center_offset_x, center_offset_y):
@@ -40,6 +42,11 @@ parser.add_argument('--inner', '-i', type=float,  help='Inner Diameter (or Radiu
 parser.add_argument('--outer', '-o', type=float,  help='Outer Diameter (or Radius) of the coil')
 parser.add_argument('--center', '-c', type=float,  help='Centerline Diameter (or Radius) of the coil')
 parser.add_argument('--thickness', '-t', type=float,  help='Radial thickness of the coil')
+
+parser.add_argument('--tx-loops',  '-txl', type=int, default=3, help='Transmission loop count')
+parser.add_argument('--tx-loop-offset', '-txlo', type=float, default=0.6, help='Transmission loop offset in mm')
+parser.add_argument('--tx-offset', '-txo', type=float, default=0.6, help='Transmission loop offset in mm')
+parser.add_argument('--tx-angle', '-txa', type=float, default=(-math.pi/20), help='Transmission angle offset in radians')
 
 parser.add_argument('--radius', '-r', action='store_const', const=True)
 
@@ -288,11 +295,11 @@ for loopnum in range(loops):
 
 
 tx_steps = 300
-tx_loops = 3
-loop_offset_mm = 0.6
-tx_offset_mm = 0.6
+tx_loops = args.tx_loops
+loop_offset_mm = args.tx_loop_offset
+tx_offset_mm = args.tx_offset
 last_point = None
-tx_angle_offset = -math.pi/20
+tx_angle_offset = args.tx_angle
 tx_extra_tail_mm = 2
 tail_end_pt = None
 
@@ -328,9 +335,6 @@ for loopnum in range(tx_loops+1):
         if loopnum == tx_loops:
             segments.append(Segment(start=current_point, end=tail_end_pt, layer='F.Cu', net=tx.code))
             break
-
-
-
 
 
 coords = [(0, 0), (10, 0), (10, 10), (0, 10)]
