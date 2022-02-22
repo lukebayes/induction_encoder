@@ -13,7 +13,7 @@ MIN_THICKNESS = 2.4
 # R_72_V10 (GL60 & GL80)
 # python3 spiral_pcb.py -i 25 -o 30.6 -r -p 8 -l 10 -s 200 -out R72V10 -vio -0.09 -voo 0.07 -txo 0.8 -txlo 0.5 -txa 0.195
 
-# R_90_V10 (GL40)
+# R_96_V10 (GL40)
 # python3 spiral_pcb.py -i 9 -o 13.8 -r -p 8 -l 7 -s 200 -out R96V10 -vio -0.14 -voo 0.08 -txl 5 -txo 0.64 -txlo 0.4 -txa -0.1
 
 # GL40
