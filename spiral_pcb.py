@@ -10,8 +10,11 @@ import numpy as np
 
 MIN_THICKNESS = 2.4
 
-# R_72_V10
-# python3 spiral_pcb.py -i 25 -o 30.5 -r -p 8 -l 10 -s 200 -out R72V10 -vio -0.09 -voo 0.07
+# R_72_V10 (GL60 & GL80)
+# python3 spiral_pcb.py -i 25 -o 30.6 -r -p 8 -l 10 -s 200 -out R72V10 -vio -0.09 -voo 0.07 -txo 0.8 -txlo 0.5 -txa 0.195
+
+# R_90_V10 (GL40)
+# python3 spiral_pcb.py -i 9 -o 13.8 -r -p 8 -l 7 -s 200 -out R96V10 -vio -0.14 -voo 0.08 -txl 5 -txo 0.64 -txlo 0.4 -txa -0.1
 
 # GL40
 # python3 spiral_pcb.py -c 22 -t 3.8 -p 8 -l 4 -s 200 -out gl40 -vio -0.09 -voo 0.07
@@ -44,8 +47,8 @@ parser.add_argument('--center', '-c', type=float,  help='Centerline Diameter (or
 parser.add_argument('--thickness', '-t', type=float,  help='Radial thickness of the coil')
 
 parser.add_argument('--tx-loops',  '-txl', type=int, default=3, help='Transmission loop count')
-parser.add_argument('--tx-loop-offset', '-txlo', type=float, default=0.6, help='Transmission loop offset in mm')
-parser.add_argument('--tx-offset', '-txo', type=float, default=0.6, help='Transmission loop offset in mm')
+parser.add_argument('--tx-loop-offset', '-txlo', type=float, default=0.6, help='Distance between TX traces in mm')
+parser.add_argument('--tx-offset', '-txo', type=float, default=0.6, help='Distance between RX and TX coils in mm')
 parser.add_argument('--tx-angle', '-txa', type=float, default=(-math.pi/20), help='Transmission angle offset in radians')
 
 parser.add_argument('--radius', '-r', action='store_const', const=True)
