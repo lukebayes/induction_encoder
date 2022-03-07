@@ -27,6 +27,9 @@ MIN_THICKNESS = 2.4
 
 # python3 spiral_pcb.py -l 16 -i 41 -o 68 -s 200 -out gl80 -voo -0.05
 
+# GL80 configuration AFTER feedback from Renesas
+python3 spiral_pcb.py -l 16 -p 4 -i 42 -o 63 -txl 3 -txlo 0.4 -txo 1.05 --tx-angle 0.01 -s 200 -out gl80 -voo -0.05 -vop 0.80
+
 
 def point_from_radius(angle, radius, center_offset_x, center_offset_y):
     y_value = math.sin(angle) * radius + center_offset_x
@@ -195,7 +198,7 @@ for loopnum in range(loops):
             outer_three_quarter_steps = int(3 * outer_quarters)
 
             half_steps = int(steps / 2)
-            chunk_steps = int(steps / 34)
+            chunk_steps = int(steps / 34) + 7
 
             # factor = (math.sin(idx/steps*math.pi*2) + 1)/2
             # angle = loop_angle*(idx/steps)+loopnum*loop_angle+phasenum*phase_angle + angle_offset
@@ -252,22 +255,26 @@ for loopnum in range(loops):
                 if idx > three_quarter_steps:
                     bottom_layer = True
 
+
+                loopback_start = int(loops / 2) - 1
+                loopback_end = int(phases / 2)
+
                 # Loopback geometry
-                if loopnum == int(loops/2)-1 and phasenum>=phases/2:
-                    if idx==half_steps + chunk_steps:
+                if loopnum == loopback_start and phasenum >= loopback_end:
+                    if idx == half_steps + chunk_steps:
                         via_list.append(Via(at=current_point, size=.5, drill=.3, net=nets[phasenum].code))
                         # bottom_layer = not bottom_layer
                     if idx <= half_steps + chunk_steps and idx >= half_steps+1:
                         bottom_layer = not bottom_layer
 
-                if loopnum == int(loops/2)-1 and phasenum<phases/2:
-                    if idx==steps - (chunk_steps - 1):
+                if loopnum == loopback_start and phasenum < loopback_end:
+                    if idx == steps - (chunk_steps - 1):
                         via_list.append(Via(at=last_point[phasenum], size=.5, drill=.3, net=nets[phasenum].code))
 
                     if idx > steps - chunk_steps:
                         bottom_layer = not bottom_layer
 
-                if idx == 0 and loopnum == int(loops / 2) and phasenum < phases/2:
+                if idx == 0 and loopnum == loopback_start + 1 and phasenum < loopback_end:
                     bottom_layer = not bottom_layer
 
                 # if loopnum == int(loops-1) and phasenum==3 and idx==outer_quarters-4:
