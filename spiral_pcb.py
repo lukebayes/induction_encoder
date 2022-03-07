@@ -28,7 +28,6 @@ MIN_THICKNESS = 2.4
 # python3 spiral_pcb.py -l 16 -i 41 -o 68 -s 200 -out gl80 -voo -0.05
 
 
-
 def point_from_radius(angle, radius, center_offset_x, center_offset_y):
     y_value = math.sin(angle) * radius + center_offset_x
     x_value = math.cos(angle) * radius + center_offset_y
@@ -45,7 +44,6 @@ def calculate_point(idx, steps, inside_radius, width, loopnum, loop_angle, phase
 
 parser = argparse.ArgumentParser(description='Generate a Kicad PCB layout for Renesas IPS2200 Inductive Encoders.')
 parser.add_argument('--based-on', '-b', default='GL80', help='The type of coil to generate')
-
 
 parser.add_argument('--inner', '-i', type=float,  help='Inner Diameter (or Radius) of the coil')
 parser.add_argument('--outer', '-o', type=float,  help='Outer Diameter (or Radius) of the coil')
@@ -229,31 +227,32 @@ for loopnum in range(loops):
                         tmp_pt=calculate_point(idx, steps, tmp_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
                         via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
 
-                if loopnum == int(loops-1) and phasenum==4 and idx==outer_quarters+1:
-                        tmp_pt=calculate_point(idx-0.5, steps, inside_radius-0.75, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                        segments.append(Segment(start=current_point, end=tmp_pt, layer='F.Cu', net=nets[phasenum].code))
-                        via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
-                        special_via_point_1 = tmp_pt
-                        # print('bee:', tmp_pt)
-                if loopnum == int(loops-1) and phasenum==5 and idx==inner_quarterse-4:
-                    segments.append(Segment(start=current_point, end=special_via_point_1, layer='B.Cu', net=nets[phasenum].code))
-                    skip_next_segment=True
-                if loopnum == int(loops-1) and phasenum==5 and idx==inner_quarters-3:
-                    tmp_pt1=calculate_point(idx-0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    tmp_pt2=calculate_point(idx+0.2, steps, inside_radius+0.4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    tmp_pt3=calculate_point(idx-0.6, steps, inside_radius+1.6, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    tmp_pt4=calculate_point(idx-0.6, steps, inside_radius+4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
-                    segments.append(Segment(start=tmp_pt1, end=tmp_pt2, layer='B.Cu', net=nets[phasenum].code))
-                    segments.append(Segment(start=tmp_pt2, end=tmp_pt3, layer='B.Cu', net=nets[phasenum].code))
-                    segments.append(Segment(start=tmp_pt3, end=tmp_pt4, layer='B.Cu', net=nets[phasenum].code))
+                # if loopnum == int(loops-1) and phasenum==4 and idx==outer_quarters+1:
+                #         tmp_pt=calculate_point(idx-0.5, steps, inside_radius-0.75, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #         segments.append(Segment(start=current_point, end=tmp_pt, layer='F.Cu', net=nets[phasenum].code))
+                #         via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
+                #         special_via_point_1 = tmp_pt
+                #         # print('bee:', tmp_pt)
+                # if loopnum == int(loops-1) and phasenum==5 and idx==inner_quarterse-4:
+                #     segments.append(Segment(start=current_point, end=special_via_point_1, layer='B.Cu', net=nets[phasenum].code))
+                #     skip_next_segment=True
+                # if loopnum == int(loops-1) and phasenum==5 and idx==inner_quarters-3:
+                #     tmp_pt1=calculate_point(idx-0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     tmp_pt2=calculate_point(idx+0.2, steps, inside_radius+0.4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     tmp_pt3=calculate_point(idx-0.6, steps, inside_radius+1.6, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     tmp_pt4=calculate_point(idx-0.6, steps, inside_radius+4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
+                #     segments.append(Segment(start=tmp_pt1, end=tmp_pt2, layer='B.Cu', net=nets[phasenum].code))
+                #     segments.append(Segment(start=tmp_pt2, end=tmp_pt3, layer='B.Cu', net=nets[phasenum].code))
+                #     segments.append(Segment(start=tmp_pt3, end=tmp_pt4, layer='B.Cu', net=nets[phasenum].code))
 
 
-                if idx > outer_quarters and idx < three_quarter_steps:
+                if idx < three_quarter_steps and idx > outer_quarters:
                     bottom_layer = False
                 if idx > three_quarter_steps:
                     bottom_layer = True
 
+                # Loopback geometry
                 if loopnum == int(loops/2)-1 and phasenum>=phases/2:
                     if idx==half_steps + chunk_steps:
                         via_list.append(Via(at=current_point, size=.5, drill=.3, net=nets[phasenum].code))
@@ -271,41 +270,60 @@ for loopnum in range(loops):
                 if idx == 0 and loopnum == int(loops / 2) and phasenum < phases/2:
                     bottom_layer = not bottom_layer
 
-                if loopnum == int(loops-1) and phasenum==3 and idx==outer_quarters-4:
-                    segments.append(Segment(start=current_point, end=special_via_point_1, layer='B.Cu', net=nets[phasenum].code))
-                    skip_next_segment=True
-                if loopnum == int(loops-1) and phasenum==2 and idx==outer_quarters:
-                    via_list = via_list[:-1]
-                    skip_next_segment=True
-                    special_via_point_2 = current_point
-                if loopnum == int(loops-1) and phasenum==2 and idx==outer_quarters+1:
-                    tmp_pt=calculate_point(idx-0.5, steps, inside_radius-0.75, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    segments.append(Segment(start=current_point, end=tmp_pt, layer='F.Cu', net=nets[phasenum].code))
-                    via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
-                    special_via_point_1 = tmp_pt
-                if loopnum == int(loops-1) and phasenum==3 and idx==inner_quarters-3:
-                    tmp_pt1=calculate_point(idx-0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    tmp_pt2=calculate_point(idx+0.2, steps, inside_radius+0.4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    tmp_pt3=calculate_point(idx-0.3, steps, inside_radius+1.2, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    tmp_pt4=calculate_point(idx-1, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
-                    segments.append(Segment(start=tmp_pt1, end=tmp_pt2, layer='B.Cu', net=nets[phasenum].code))
-                    segments.append(Segment(start=tmp_pt2, end=tmp_pt3, layer='B.Cu', net=nets[phasenum].code))
-                    segments.append(Segment(start=tmp_pt3, end=special_via_point_2, layer='B.Cu', net=nets[phasenum].code))
+                # if loopnum == int(loops-1) and phasenum==3 and idx==outer_quarters-4:
+                #     segments.append(Segment(start=current_point, end=special_via_point_1, layer='B.Cu', net=nets[phasenum].code))
+                #     skip_next_segment=True
+                # if loopnum == int(loops-1) and phasenum==2 and idx==outer_quarters:
+                #     via_list = via_list[:-1]
+                #     skip_next_segment=True
+                #     special_via_point_2 = current_point
+                # if loopnum == int(loops-1) and phasenum==2 and idx==outer_quarters+1:
+                #     tmp_pt=calculate_point(idx-0.5, steps, inside_radius-0.75, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     segments.append(Segment(start=current_point, end=tmp_pt, layer='F.Cu', net=nets[phasenum].code))
+                #     via_list.append(Via(at=tmp_pt, size=.5, drill=.3, net=nets[phasenum].code))
+                #     special_via_point_1 = tmp_pt
+                # if loopnum == int(loops-1) and phasenum==3 and idx==inner_quarters-3:
+                #     tmp_pt1=calculate_point(idx-0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     tmp_pt2=calculate_point(idx+0.2, steps, inside_radius+0.4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     tmp_pt3=calculate_point(idx-0.3, steps, inside_radius+1.2, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     tmp_pt4=calculate_point(idx-1, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
+                #     segments.append(Segment(start=tmp_pt1, end=tmp_pt2, layer='B.Cu', net=nets[phasenum].code))
+                #     segments.append(Segment(start=tmp_pt2, end=tmp_pt3, layer='B.Cu', net=nets[phasenum].code))
+                #     segments.append(Segment(start=tmp_pt3, end=special_via_point_2, layer='B.Cu', net=nets[phasenum].code))
 
-                if loopnum == int(loops-1) and phasenum==3 and idx==inner_quarters-1:
-                    tmp_pt1=calculate_point(idx+0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    tmp_pt2=calculate_point(idx+0.3, steps, inside_radius+4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
-                    segments.append(Segment(start=tmp_pt1, end=tmp_pt2, layer='B.Cu', net=nets[phasenum].code))
-                    skip_next_segment=True
+                # if loopnum == int(loops-1) and phasenum==3 and idx==inner_quarters-1:
+                #     tmp_pt1=calculate_point(idx+0.3, steps, inside_radius, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     tmp_pt2=calculate_point(idx+0.3, steps, inside_radius+4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
+                #     segments.append(Segment(start=tmp_pt1, end=tmp_pt2, layer='B.Cu', net=nets[phasenum].code))
+                #     skip_next_segment=True
 
-                if loopnum == int(loops-1) and phasenum==3 and idx==inner_quarters:
-                    tmp_pt1=calculate_point(idx, steps, inside_radius+4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
-                    segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
+                # if loopnum == int(loops-1) and phasenum==3 and idx==inner_quarters:
+                #     tmp_pt1=calculate_point(idx, steps, inside_radius+4, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                #     segments.append(Segment(start=current_point, end=tmp_pt1, layer='B.Cu', net=nets[phasenum].code))
+
+
+                apex_steps = 7
+                apex_len = 2.9
+
+                apex_first_step = outer_quarters - (apex_steps * 2) - 1
+                apex_last_step = outer_quarters - apex_steps
 
                 layer = 'B.Cu' if bottom_layer else 'F.Cu'
                 if not skip_current_segment:
+                  if idx >= apex_first_step and idx < apex_last_step:
+                    if idx == apex_first_step:
+                      tmp_pt1=calculate_point(idx, steps, inside_radius+0.02, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                      tmp_pt2=calculate_point(idx, steps, inside_radius+apex_len, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                      tmp_pt3=calculate_point(idx+apex_steps, steps, inside_radius+apex_len, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                      tmp_pt4=calculate_point(idx+apex_steps, steps, inside_radius+0.02, width, loopnum, loop_angle, phasenum, phase_angle, angle_offset, center_offset_x, center_offset_y)
+                      segments.append(Segment(start=current_point, end=tmp_pt1, layer=layer, net=nets[phasenum].code))
+                      segments.append(Segment(start=tmp_pt1, end=tmp_pt2, layer=layer, net=nets[phasenum].code))
+                      segments.append(Segment(start=tmp_pt2, end=tmp_pt3, layer=layer, net=nets[phasenum].code))
+                      segments.append(Segment(start=tmp_pt3, end=tmp_pt4, layer=layer, net=nets[phasenum].code))
+                      current_point = tmp_pt4
+                  else:
                     segments.append(Segment(start=last_point[phasenum], end=current_point, layer=layer, net=nets[phasenum].code))
 
             last_point[phasenum] = current_point
